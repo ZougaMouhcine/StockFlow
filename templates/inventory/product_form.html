@@ -1,0 +1,32 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+    <p class="section-kicker">Gestion Produit</p>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-subtitle">Modifiez uniquement les informations necessaires puis enregistrez.</p>
+</section>
+
+<div class="panel p-4 p-lg-5">
+    <div class="card-body p-0">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            {{ form.as_p }}
+
+            {% if product and product.photo %}
+                <div class="mb-3">
+                    <p class="mb-1 fw-semibold">Image actuelle</p>
+                    <img src="{{ product.photo.url }}" alt="{{ product.name }}" style="width: 92px; height: 92px; object-fit: cover;" class="rounded border">
+                </div>
+            {% endif %}
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success">Enregistrer</button>
+                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

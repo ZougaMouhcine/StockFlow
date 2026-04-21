@@ -1,0 +1,24 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+    <p class="section-kicker">Gestion Categorie</p>
+    <h1 class="page-title">{{ title }}</h1>
+    <p class="page-subtitle">Renseignez le nom et la description pour structurer le catalogue.</p>
+</section>
+
+<div class="panel p-4 p-lg-5">
+    <div class="card-body p-0">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-success">Enregistrer</button>
+                <a href="{% url 'category_list' %}" class="btn btn-outline-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

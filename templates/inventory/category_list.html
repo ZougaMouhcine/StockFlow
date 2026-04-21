@@ -1,0 +1,47 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Catégories{% endblock %}
+
+{% block content %}
+<section class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+    <div>
+        <p class="section-kicker">Administration</p>
+        <h1 class="page-title">Categories</h1>
+        <p class="page-subtitle">Organisez les produits pour un suivi clair et rapide.</p>
+    </div>
+    <div class="d-flex gap-2 align-items-center flex-wrap">
+        <span class="metric-pill">Total: {{ categories|length }}</span>
+        <a href="{% url 'category_create' %}" class="btn btn-primary">Ajouter une categorie</a>
+    </div>
+</section>
+
+{% if categories %}
+    <div class="panel p-2 p-md-3 table-responsive soft-table">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Date création</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for category in categories %}
+                <tr>
+                    <td class="fw-semibold">{{ category.name }}</td>
+                    <td>{{ category.description|default:'-' }}</td>
+                    <td>{{ category.created_at|date:'d/m/Y H:i' }}</td>
+                    <td class="d-flex gap-2">
+                        <a href="{% url 'category_update' category.pk %}" class="btn btn-outline-secondary btn-sm">Modifier</a>
+                        <a href="{% url 'category_delete' category.pk %}" class="btn btn-outline-danger btn-sm">Supprimer</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    <div class="panel empty-state">Aucune categorie disponible.</div>
+{% endif %}
+{% endblock %}

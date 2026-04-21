@@ -1,0 +1,53 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Détail du produit{% endblock %}
+
+{% block content %}
+<section class="d-flex justify-content-between align-items-center mb-4 gap-3 flex-wrap">
+    <div>
+        <p class="section-kicker">Fiche Produit</p>
+        <h1 class="page-title mb-1">{{ product.name }}</h1>
+        <p class="page-subtitle">Consultez les details, le stock et les dates de suivi.</p>
+    </div>
+    <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Retour a la liste</a>
+</section>
+
+<div class="panel p-2 p-md-3">
+    <div class="row g-0">
+        <div class="col-md-5">
+            {% if product.photo %}
+                <img src="{{ product.photo.url }}" class="img-fluid rounded-start h-100" style="object-fit: cover; min-height: 320px;" alt="{{ product.name }}">
+            {% else %}
+                <div class="h-100 d-flex align-items-center justify-content-center rounded-start media-placeholder" style="min-height: 320px;">
+                    <span>Aucune image</span>
+                </div>
+            {% endif %}
+        </div>
+        <div class="col-md-7">
+            <div class="card-body p-4 p-lg-5">
+                <p class="text-muted text-uppercase small mb-2" style="letter-spacing: .06em;">{{ product.category.name }}</p>
+                <p class="card-text mb-4">{{ product.description|default:'Aucune description.' }}</p>
+                <p class="fw-bold fs-4 mb-3">{{ product.price }} DH</p>
+                <p class="mb-3 d-flex align-items-center gap-2 flex-wrap">
+                    <span><strong>Stock:</strong> {{ product.stock }}</span>
+                    {% if product.stock_status == 'available' %}
+                        <span class="stock-pill stock-ok">Disponible</span>
+                    {% elif product.stock_status == 'low' %}
+                        <span class="stock-pill stock-low">Stock faible</span>
+                    {% else %}
+                        <span class="stock-pill stock-out">Rupture</span>
+                    {% endif %}
+                </p>
+                <p class="text-muted small mb-4">Cree le {{ product.created_at|date:'d/m/Y H:i' }} | Mis a jour le {{ product.updated_at|date:'d/m/Y H:i' }}</p>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    {% if can_manage %}
+                        <a href="{% url 'product_update' product.pk %}" class="btn btn-outline-secondary">Modifier</a>
+                        <a href="{% url 'product_delete' product.pk %}" class="btn btn-outline-danger">Supprimer</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

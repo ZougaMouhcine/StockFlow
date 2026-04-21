@@ -1,0 +1,24 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Supprimer une catégorie{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+    <p class="section-kicker">Zone Sensible</p>
+    <h1 class="page-title">Supprimer une categorie</h1>
+    <p class="page-subtitle">La suppression peut impacter les produits associes.</p>
+</section>
+
+<div class="panel p-4 p-md-5" style="border-color: rgba(185, 28, 28, 0.28) !important;">
+    <div class="card-body p-0">
+        <div class="alert alert-warning mb-3" style="background: rgba(217, 119, 6, 0.12); border-color: rgba(217, 119, 6, 0.32); color: #7c2d12;">
+            Confirmer la suppression de "{{ category.name }}" ?
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+            <a href="{% url 'category_list' %}" class="btn btn-outline-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

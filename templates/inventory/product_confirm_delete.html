@@ -1,0 +1,24 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Supprimer un produit{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+    <p class="section-kicker">Zone Sensible</p>
+    <h1 class="page-title">Supprimer un produit</h1>
+    <p class="page-subtitle">Cette action est irreversible.</p>
+</section>
+
+<div class="panel p-4 p-md-5" style="border-color: rgba(185, 28, 28, 0.34) !important;">
+    <div class="card-body p-0">
+        <div class="alert alert-danger mb-3" style="background: rgba(185, 28, 28, 0.12); border-color: rgba(185, 28, 28, 0.34); color: #7f1d1d;">
+            Confirmer la suppression de "{{ product.name }}" ?
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Annuler</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
