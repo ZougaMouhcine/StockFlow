@@ -1,0 +1,100 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Commande #{{ order.id }}{% endblock %}
+
+{% block content %}
+<section class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+    <div>
+        <p class="section-kicker">Commande</p>
+        <h1 class="page-title">Commande #{{ order.id }}</h1>
+        <p class="page-subtitle">Placee le {{ order.created_at|date:'d/m/Y H:i' }}</p>
+    </div>
+    <div class="metric-pill">{{ order.get_status_display }}</div>
+</section>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        {% if can_manage %}
+            <div class="panel p-3 p-md-4 mb-4">
+                <h2 class="h5 mb-3">Traitement</h2>
+                {% if allowed_statuses %}
+                    <form method="post" action="{% url 'order_update_status' order.pk %}" class="d-flex flex-wrap gap-2">
+                        {% csrf_token %}
+                        {% for status in allowed_statuses %}
+                            {% if status == 'cancelled' %}
+                                <button type="submit" name="status" value="{{ status }}" class="btn btn-danger" onclick="return confirm('Etes-vous sur de vouloir annuler cette commande ?');">Annuler</button>
+                            {% else %}
+                                <button type="submit" name="status" value="{{ status }}" class="btn btn-success">
+                                    {% if status == 'confirmed' %}Confirmer{% elif status == 'shipped' %}Passer en livraison{% elif status == 'delivered' %}Marquer livrée{% else %}Mettre à jour{% endif %}
+                                </button>
+                            {% endif %}
+                        {% endfor %}
+                    </form>
+                {% else %}
+                    <p class="text-muted mb-0">Aucune action disponible pour ce statut.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+        <div class="panel p-2 p-md-3 table-responsive soft-table">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>Produit</th>
+                    <th>Prix</th>
+                    <th>Quantite</th>
+                    <th>Total</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in items %}
+                    <tr>
+                        <td class="fw-semibold">{{ item.product.name }}</td>
+                        <td>{{ item.unit_price }} DH</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.line_total }} DH</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel p-4">
+            <h2 class="h5 mb-3">Livraison</h2>
+            {% if can_manage %}
+                <p class="text-muted small mb-1">Compte: {{ order.user.username }}</p>
+            {% endif %}
+            <p class="mb-1 fw-semibold">{{ order.full_name }}</p>
+            <p class="mb-1">{{ order.address }}</p>
+            <p class="mb-1">{{ order.city }}</p>
+            <p class="mb-1">{{ order.phone }}</p>
+            <p class="text-muted small">{{ order.email }}</p>
+            {% if order.notes %}
+                <div class="alert alert-info mt-3">{{ order.notes }}</div>
+            {% endif %}
+            <hr>
+            <div class="d-flex justify-content-between fw-bold fs-5">
+                <span>Total</span>
+                <span>{{ order.total_amount }} DH</span>
+            </div>
+        </div>
+
+        <div class="panel p-4 mt-4">
+            <h2 class="h5 mb-3">Suivi de commande</h2>
+            {% if order.status == 'cancelled' %}
+                <div class="alert alert-warning mb-0">Commande annulée.</div>
+            {% else %}
+                <div class="d-flex flex-column gap-2">
+                    {% for step in status_steps %}
+                        {% if current_status_index != None and forloop.counter0 <= current_status_index %}
+                            <span class="badge bg-success align-self-start">{{ step.label }}</span>
+                        {% else %}
+                            <span class="badge bg-secondary align-self-start">{{ step.label }}</span>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

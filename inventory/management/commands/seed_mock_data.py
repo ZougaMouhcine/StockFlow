@@ -26,10 +26,10 @@ class Command(BaseCommand):
             Category.objects.all().delete()
             self.stdout.write(self.style.WARNING("Existing categories and products deleted."))
 
-        groups = ["superadmin", "admin", "viewer"]
+        groups = ["admin", "client"]
         for group_name in groups:
             Group.objects.get_or_create(name=group_name)
-        self.stdout.write(self.style.SUCCESS("Groups ensured: superadmin, admin, viewer"))
+        self.stdout.write(self.style.SUCCESS("Groups ensured: admin, client"))
 
         categories_data = [
             {"name": "Informatique Mobile", "description": "PC portables, tablettes et accessoires nomades"},
@@ -183,6 +183,8 @@ class Command(BaseCommand):
         created_count = 0
         updated_count = 0
         image_backfilled_count = 0
+        image_seeded_count = 0
+        image_linked_count = 0
 
         for item in products_data:
             defaults = {
@@ -217,6 +219,54 @@ class Command(BaseCommand):
             )
 
         if available_images:
+            def normalize_product_name(filename: str) -> str:
+                stem = filename.rsplit(".", 1)[0]
+                stem = stem.replace("_", " ").replace("-", " ")
+                stem = " ".join(stem.split())
+                return stem.title()
+
+            def pick_category_key(filename: str) -> str:
+                lower_name = filename.lower()
+                if any(token in lower_name for token in ["airpod", "earpod", "casque", "audio", "headphone"]):
+                    return "Audio & Vidéo"
+                if any(token in lower_name for token in ["mouse", "keyboard", "charger", "magsafe", "dock", "airtag"]):
+                    return "Périphériques"
+                if any(
+                    token in lower_name
+                    for token in ["iphone", "mac", "macbook", "ultrabook", "ipad", "smartwatch", "studio", "mini"]
+                ):
+                    return "Informatique Mobile"
+                return "Informatique Mobile"
+
+            for image_name in available_images:
+                product_name = normalize_product_name(image_name)
+                if not product_name:
+                    continue
+                category_key = pick_category_key(image_name)
+                category = categories.get(category_key) or next(iter(categories.values()))
+                price_seed = sum(ord(ch) for ch in product_name)
+                price = Decimal(str((price_seed % 9000) + 900))
+                stock = (price_seed % 25) + 1
+
+                product, created = Product.objects.get_or_create(
+                    name=product_name,
+                    defaults={
+                        "description": "Produit importe depuis media.",
+                        "price": price,
+                        "stock": stock,
+                        "category": category,
+                        "photo": f"products/{image_name}",
+                    },
+                )
+
+                if created:
+                    image_seeded_count += 1
+                else:
+                    if not product.photo:
+                        product.photo.name = f"products/{image_name}"
+                        product.save(update_fields=["photo"])
+                        image_linked_count += 1
+
             products_without_photo = Product.objects.filter(Q(photo="") | Q(photo__isnull=True))
             for product in products_without_photo:
                 # Deterministic assignment so repeated seeds keep stable mock visuals.
@@ -236,14 +286,14 @@ class Command(BaseCommand):
         user_specs = [
             {
                 "username": "superuser1",
-                "group": "superadmin",
+                "group": "admin",
                 "password": "SuperUser@2026",
                 "is_staff": True,
                 "is_superuser": True,
             },
             {
                 "username": "super1",
-                "group": "superadmin",
+                "group": "admin",
                 "password": "SuperAdmin@2026",
                 "is_staff": True,
                 "is_superuser": True,
@@ -257,7 +307,7 @@ class Command(BaseCommand):
             },
             {
                 "username": "user1",
-                "group": "viewer",
+                "group": "client",
                 "password": "Viewer@2026",
                 "is_staff": False,
                 "is_superuser": False,
@@ -297,6 +347,7 @@ class Command(BaseCommand):
                 f"Mock data ready: {Category.objects.count()} categories, "
                 f"{Product.objects.count()} products "
                 f"({created_count} created, {updated_count} updated, "
+                f"{image_seeded_count} image products added, {image_linked_count} images linked, "
                 f"{image_backfilled_count} images backfilled)."
             )
         )

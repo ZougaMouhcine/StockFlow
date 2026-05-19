@@ -1,0 +1,22 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Creer un compte{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+    <p class="section-kicker">Nouveau client</p>
+    <h1 class="page-title">Creer un compte</h1>
+    <p class="page-subtitle">Rejoignez la boutique pour commander rapidement.</p>
+</section>
+
+<div class="panel p-4 p-lg-5">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-success">Creer mon compte</button>
+            <a href="{% url 'login' %}" class="btn btn-outline-secondary">J'ai deja un compte</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

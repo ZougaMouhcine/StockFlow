@@ -16,8 +16,15 @@
         </div>
         <form method="post">
             {% csrf_token %}
+            {% if next_url %}
+                <input type="hidden" name="next" value="{{ next_url }}">
+            {% endif %}
             <button type="submit" class="btn btn-danger">Supprimer définitivement</button>
-            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Annuler</a>
+            {% if next_url %}
+                <a href="{{ next_url }}" class="btn btn-outline-secondary">Annuler</a>
+            {% else %}
+                <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Annuler</a>
+            {% endif %}
         </form>
     </div>
 </div>

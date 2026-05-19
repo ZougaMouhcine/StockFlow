@@ -1,0 +1,25 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+    <p class="section-kicker">Espace client</p>
+    <h1 class="page-title">Connexion</h1>
+    <p class="page-subtitle">Accedez a votre compte pour acheter et suivre vos commandes.</p>
+</section>
+
+<div class="panel p-4 p-lg-5">
+    <form method="post">
+        {% csrf_token %}
+        {% if next_url %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+        {% endif %}
+        {{ form.as_p }}
+        <div class="d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn btn-success">Se connecter</button>
+            <a href="{% url 'signup' %}" class="btn btn-outline-secondary">Creer un compte</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

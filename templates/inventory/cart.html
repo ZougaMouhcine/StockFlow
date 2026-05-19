@@ -1,0 +1,65 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Mon panier{% endblock %}
+
+{% block content %}
+<section class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+    <div>
+        <p class="section-kicker">Panier</p>
+        <h1 class="page-title">Votre selection</h1>
+        <p class="page-subtitle">Revoyez les quantites avant de passer commande.</p>
+    </div>
+    <div class="metric-pill">Articles: {{ items|length }}</div>
+</section>
+
+{% if items %}
+    <div class="panel p-2 p-md-3 table-responsive soft-table mb-4">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Prix</th>
+                <th>Quantite</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in items %}
+                <tr>
+                    <td class="fw-semibold">{{ item.product.name }}</td>
+                    <td>{{ item.product.price }} DH</td>
+                    <td style="max-width: 160px;">
+                        <form method="post" action="{% url 'cart_update' item.product.pk %}" class="d-flex gap-2">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" class="form-control" value="{{ item.quantity }}" min="0" max="{{ item.product.stock }}">
+                            <button type="submit" class="btn btn-outline-secondary btn-sm">Maj</button>
+                        </form>
+                    </td>
+                    <td>{{ item.line_total }} DH</td>
+                    <td>
+                        <form method="post" action="{% url 'cart_remove' item.product.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Retirer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel p-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <p class="mb-1 text-muted">Total a payer</p>
+            <p class="fs-4 fw-bold mb-0">{{ total }} DH</p>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Continuer vos achats</a>
+            <a href="{% url 'checkout' %}" class="btn btn-success">Passer a la commande</a>
+        </div>
+    </div>
+{% else %}
+    <div class="panel empty-state">Votre panier est vide.</div>
+{% endif %}
+{% endblock %}

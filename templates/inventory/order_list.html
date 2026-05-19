@@ -1,0 +1,65 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Mes commandes{% endblock %}
+
+{% block content %}
+<section class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+    <div>
+        {% if can_manage %}
+            <p class="section-kicker">Gestion</p>
+            <h1 class="page-title">Commandes clients</h1>
+            <p class="page-subtitle">Traitez les commandes en attente.</p>
+        {% else %}
+            <p class="section-kicker">Compte</p>
+            <h1 class="page-title">Mes commandes</h1>
+            <p class="page-subtitle">Suivez l'etat de vos achats.</p>
+        {% endif %}
+    </div>
+    <div class="metric-pill">Total: {{ orders|length }}</div>
+</section>
+
+{% if orders %}
+    <div class="panel p-2 p-md-3 table-responsive soft-table">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+            <tr>
+                <th>Commande</th>
+                {% if can_manage %}
+                    <th>Client</th>
+                    <th>Email</th>
+                {% endif %}
+                <th>Date</th>
+                <th>Statut</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    {% if can_manage %}
+                        <td>{{ order.full_name|default:order.user.username }}</td>
+                        <td>{{ order.email }}</td>
+                    {% endif %}
+                    <td>{{ order.created_at|date:'d/m/Y H:i' }}</td>
+                    <td>{{ order.get_status_display }}</td>
+                    <td>{{ order.total_amount }} DH</td>
+                    <td>
+                        <a href="{% url 'order_detail' order.pk %}" class="btn btn-outline-secondary btn-sm">
+                            {% if can_manage %}Traiter{% else %}Voir{% endif %}
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% else %}
+    {% if can_manage %}
+        <div class="panel empty-state">Aucune commande client pour le moment.</div>
+    {% else %}
+        <div class="panel empty-state">Aucune commande pour le moment.</div>
+    {% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}Commander{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+    <p class="section-kicker">Commande</p>
+    <h1 class="page-title">Finaliser l'achat</h1>
+    <p class="page-subtitle">Confirmez vos informations et validez votre commande.</p>
+</section>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="panel p-4 p-lg-5">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-success">Valider la commande</button>
+            </form>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="panel p-4">
+            <h2 class="h5 mb-3">Resume</h2>
+            <ul class="list-unstyled mb-3">
+                {% for item in items %}
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>{{ item.product.name }} x {{ item.quantity }}</span>
+                        <span>{{ item.line_total }} DH</span>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="d-flex justify-content-between fw-bold fs-5">
+                <span>Total</span>
+                <span>{{ total }} DH</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
